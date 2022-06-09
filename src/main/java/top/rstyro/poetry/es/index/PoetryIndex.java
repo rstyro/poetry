@@ -30,7 +30,7 @@ public class PoetryIndex extends EsBaseIndex{
     /**
      * 删除标记
      */
-    private Boolean isDel;
+    private Boolean is_del;
 
     /**
      * 标签
@@ -39,10 +39,10 @@ public class PoetryIndex extends EsBaseIndex{
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime updateTime;
+    private LocalDateTime update_time;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createTime;
+    private LocalDateTime create_time;
 
 }
