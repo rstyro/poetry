@@ -24,6 +24,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import top.rstyro.poetry.es.base.EsResult;
 import top.rstyro.poetry.es.index.EsBaseIndex;
 
@@ -59,10 +60,13 @@ public class EsBaseService<T extends EsBaseIndex> {
      */
     @SneakyThrows
     public boolean saveDoc(T doc){
-        IndexRequest indexRequest = new IndexRequest(t.getIndexName()).id(doc.get_id());
+        IndexRequest indexRequest = new IndexRequest(t.getIndexName());
+        if(!StringUtils.isEmpty(t.get_id())){
+            indexRequest.id(doc.get_id());
+            indexRequest.routing(doc.get_id());
+            indexRequest.opType(DocWriteRequest.OpType.CREATE);
+        }
         indexRequest.source(JSON.toJSONString(doc), XContentType.JSON);
-        indexRequest.routing(doc.get_id());
-        indexRequest.opType(DocWriteRequest.OpType.CREATE);
         restHighLevelClient.index(indexRequest, RequestOptions.DEFAULT);
         return true;
     }

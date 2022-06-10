@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -26,7 +27,7 @@ public class PoetryIndex extends EsBaseIndex{
     /**
      * 内容
      */
-    private String content;
+    private List<String> content;
     /**
      * 删除标记
      */
