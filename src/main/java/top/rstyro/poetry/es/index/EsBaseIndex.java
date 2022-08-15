@@ -1,6 +1,8 @@
 package top.rstyro.poetry.es.index;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFilter;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -14,15 +16,18 @@ public class EsBaseIndex implements Serializable {
     /**
      * es 主键ID
      */
+    @JSONField(serialize = false)
     private String _id;
     /**
      * 命中分数
      */
+    @JSONField(serialize = false)
     private float _score;
 
     /**
      * 高亮
      */
+    @JSONField(serialize = false)
     Map<String, List<String>> highlight;
 
     /**

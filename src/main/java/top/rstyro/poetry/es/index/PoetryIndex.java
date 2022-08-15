@@ -9,6 +9,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * 古诗索引
+ */
 @Data
 @Accessors(chain = true)
 public class PoetryIndex extends EsBaseIndex{
@@ -34,9 +37,22 @@ public class PoetryIndex extends EsBaseIndex{
     private Boolean is_del;
 
     /**
-     * 标签
+     * 标签: 春天、写景、离别....等等
      */
     private Set<String> tags;
+    /**
+     * 朝代： 唐 宋 ....
+     */
+    private Set<String> dynasty;
+    /**
+     * 七言绝句、五言律诗...
+     */
+    private Set<String> type;
+
+    /**
+     * 译文
+     */
+    private String translation;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
