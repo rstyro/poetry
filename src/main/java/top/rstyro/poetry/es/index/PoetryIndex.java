@@ -52,7 +52,7 @@ public class PoetryIndex extends EsBaseIndex{
     /**
      * 译文
      */
-    private String translation;
+    private List<String> translations;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
