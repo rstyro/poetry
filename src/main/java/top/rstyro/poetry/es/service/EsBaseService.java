@@ -60,13 +60,7 @@ public class EsBaseService<T extends EsBaseIndex> {
      */
     @SneakyThrows
     public boolean saveDoc(T doc){
-        IndexRequest indexRequest = new IndexRequest(t.getIndexName());
-        if(!StringUtils.isEmpty(t.get_id())){
-            indexRequest.id(doc.get_id());
-            indexRequest.routing(doc.get_id());
-            indexRequest.opType(DocWriteRequest.OpType.CREATE);
-        }
-        indexRequest.source(JSON.toJSONString(doc), XContentType.JSON);
+        IndexRequest indexRequest = getSaveRequest(doc);
         restHighLevelClient.index(indexRequest, RequestOptions.DEFAULT);
         return true;
     }
@@ -112,13 +106,23 @@ public class EsBaseService<T extends EsBaseIndex> {
         if (list == null || list.size() < 1) return false;
         BulkRequest request = new BulkRequest();
         for (T item : list) {
-            IndexRequest indexRequest = new IndexRequest(item.getIndexName()).id(item.get_id()).source(JSON.toJSONString(item), XContentType.JSON);
-            request.add(indexRequest);
+            IndexRequest saveRequest = getSaveRequest(item);
+            request.add(saveRequest);
         }
         BulkResponse bulk = restHighLevelClient.bulk(request, RequestOptions.DEFAULT);
         return !bulk.hasFailures();
     }
 
+    private IndexRequest getSaveRequest(T item){
+        IndexRequest indexRequest = new IndexRequest(item.getIndexName());
+        if(!StringUtils.isEmpty(item.get_id())){
+            indexRequest.id(item.get_id());
+            indexRequest.routing(item.get_id());
+            indexRequest.opType(DocWriteRequest.OpType.CREATE);
+        }
+        indexRequest.source(JSON.toJSONString(item.set_id(null)), XContentType.JSON);
+        return indexRequest;
+    }
 
     /**
      * 更新文档

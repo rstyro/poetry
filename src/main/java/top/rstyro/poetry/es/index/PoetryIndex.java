@@ -20,6 +20,10 @@ public class PoetryIndex extends EsBaseIndex{
      */
     private String section;
     /**
+     * 章节
+     */
+    private String chapter;
+    /**
      * 作者
      */
     private String author;

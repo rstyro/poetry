@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 唐宋
@@ -27,7 +28,7 @@ public class PoetryTangSongVo {
     /**
      * 标签，不一定有
      */
-    private List<String> tags;
+    private Set<String> tags;
 
     /**
      * 卷，不一定有

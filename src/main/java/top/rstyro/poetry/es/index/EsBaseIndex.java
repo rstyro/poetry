@@ -24,6 +24,7 @@ public class EsBaseIndex implements Serializable {
     @JSONField(serialize = false)
     private float _score;
 
+
     /**
      * 高亮
      */
@@ -34,10 +35,10 @@ public class EsBaseIndex implements Serializable {
      * es 索引名称
      * @return
      */
+    @JSONField(serialize = false)
     public String getIndexName() {
         return StrUtil.toSymbolCase(StrUtil.removeSuffix(getClass().getSimpleName(), "Index"), '-');
     }
-
 
 
 }

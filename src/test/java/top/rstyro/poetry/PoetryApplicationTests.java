@@ -11,6 +11,8 @@ import top.rstyro.poetry.es.base.EsResult;
 import top.rstyro.poetry.es.index.PoetIndex;
 import top.rstyro.poetry.es.index.PoetryIndex;
 import top.rstyro.poetry.es.service.impl.PoetryEsService;
+import top.rstyro.poetry.process.ChuCiHandler;
+import top.rstyro.poetry.process.TangSongHandler;
 import top.rstyro.poetry.util.LambdaUtil;
 
 import java.util.ArrayList;
@@ -21,6 +23,18 @@ class PoetryApplicationTests {
 
 
     private PoetryEsService poetryEsService;
+    private ChuCiHandler chuCiHandler;
+    private TangSongHandler tangSongHandler;
+
+    @Autowired
+    public void setChuCiHandler(ChuCiHandler chuCiHandler) {
+        this.chuCiHandler = chuCiHandler;
+    }
+
+    @Autowired
+    public void setTangSongHandler(TangSongHandler tangSongHandler) {
+        this.tangSongHandler = tangSongHandler;
+    }
 
     @Autowired
     public void setPoetryEsService(PoetryEsService poetryEsService) {
@@ -55,23 +69,28 @@ class PoetryApplicationTests {
 //        }
 
 
-        List<PoetryIndex> list = new ArrayList<>();
-        PoetryIndex poetryIndex = new PoetryIndex();
-        poetryIndex.set_id("b-yVR4EBW0G4uLadnYW1");
-        poetryIndex.setAuthor("屈原2");
+//        List<PoetryIndex> list = new ArrayList<>();
+//        PoetryIndex poetryIndex = new PoetryIndex();
+//        poetryIndex.set_id("b-yVR4EBW0G4uLadnYW1");
+//        poetryIndex.setAuthor("屈原2");
+//
+//        PoetryIndex poetryIndex2 = new PoetryIndex();
+//        poetryIndex2.set_id("5CPI1oEBW_zZZa3IQjxb");
+//        poetryIndex2.setAuthor("屈原3");
+//
+//        PoetryIndex poetryIndex3 = new PoetryIndex();
+//        poetryIndex3.set_id("b-yVR4EBW0G4uLadnYW2");
+//        poetryIndex3.setAuthor("屈原4");
+//        list.add(poetryIndex);
+//        list.add(poetryIndex2);
+//        list.add(poetryIndex3);
+//        boolean b = poetryEsService.batchUpdateDoc(list);
+//        System.out.println("b="+b);
 
-        PoetryIndex poetryIndex2 = new PoetryIndex();
-        poetryIndex2.set_id("5CPI1oEBW_zZZa3IQjxb");
-        poetryIndex2.setAuthor("屈原3");
 
-        PoetryIndex poetryIndex3 = new PoetryIndex();
-        poetryIndex3.set_id("b-yVR4EBW0G4uLadnYW2");
-        poetryIndex3.setAuthor("屈原4");
-        list.add(poetryIndex);
-        list.add(poetryIndex2);
-        list.add(poetryIndex3);
-        boolean b = poetryEsService.batchUpdateDoc(list);
-        System.out.println("b="+b);
+//        chuCiHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\chuci");
+
+        tangSongHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\json");
     }
 
 }
