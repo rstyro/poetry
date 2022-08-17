@@ -2,8 +2,15 @@ package top.rstyro.poetry.commons;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
+/**
+ * 自定义的接口返回实体类
+ * @author rstyro
+ *
+ */
 @Data
-public class R<T> {
+public class R<T> implements Serializable {
     private int code;
     private String msg;
     private T data;

@@ -13,6 +13,6 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 public class BaseEsVo implements Serializable {
-    public String id;
+    public String _id;
     public Map<String, List<String>> highlight;
 }

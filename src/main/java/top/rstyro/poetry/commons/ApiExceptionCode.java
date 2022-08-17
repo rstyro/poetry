@@ -1,6 +1,7 @@
 package top.rstyro.poetry.commons;
 
 public enum ApiExceptionCode {
+    // 基础报错code
     SUCCESS(200,"成功"),
     FAILED(400,"请求失败"),
     ERROR(500,"不知名错误"),
@@ -9,6 +10,10 @@ public enum ApiExceptionCode {
     ERROR_RUNTIME(503,"运行时异常"),
     ERROR_IO(504,"上传文件异常"),
     ERROR_METHOD(505,"请求方法错误"),
+
+
+
+
     ;
     private String message;
     private int status;
