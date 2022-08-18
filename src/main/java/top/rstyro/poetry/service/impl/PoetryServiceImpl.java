@@ -1,6 +1,7 @@
 package top.rstyro.poetry.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -9,6 +10,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.ParsedTerms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import top.rstyro.poetry.commons.ApiException;
@@ -30,11 +32,15 @@ import top.rstyro.poetry.vo.SearchVo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Slf4j
 @Service
 public class PoetryServiceImpl implements IPoetryService {
+
+    @Value("${spring.profiles.active}")
+    private String env;
+
 
     private PoetryEsService poetryEsService;
 
@@ -74,7 +80,10 @@ public class PoetryServiceImpl implements IPoetryService {
         // 高亮
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         // * 全部字段
-        highlightBuilder.field("*");
+        highlightBuilder.field(LambdaUtil.getFieldName(PoetryIndex::getTitle));
+        highlightBuilder.field(LambdaUtil.getFieldName(PoetryIndex::getAuthor));
+        highlightBuilder.field(LambdaUtil.getFieldName(PoetryIndex::getContent));
+        highlightBuilder.fragmentSize(200);
         searchSourceBuilder.highlighter(highlightBuilder);
         // 聚类
         if (!ObjectUtils.isEmpty(dto.getAggsList())) {
@@ -92,6 +101,9 @@ public class PoetryServiceImpl implements IPoetryService {
             searchSourceBuilder.from(from).size(ContextUtil.getPageSize());
         }else {
             searchSourceBuilder.size(0);
+        }
+        if ("dev".equals(env)) {
+            log.info("ES-SQL={}",searchSourceBuilder.toString());
         }
         EsResult<PoetryIndex> response = poetryEsService.search(searchSourceBuilder);
         EsSearchResultVo<SearchVo> resultVo = new EsSearchResultVo<>();
