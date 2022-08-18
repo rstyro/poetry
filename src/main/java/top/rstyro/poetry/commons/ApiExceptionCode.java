@@ -12,7 +12,8 @@ public enum ApiExceptionCode {
     ERROR_METHOD(505,"请求方法错误"),
 
 
-
+    // 业务code
+    ES_OVER_MAX_RESULT(10001,"超过最大分页限制");
 
     ;
     private String message;

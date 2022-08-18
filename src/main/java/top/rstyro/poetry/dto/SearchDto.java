@@ -3,6 +3,7 @@ package top.rstyro.poetry.dto;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Data
@@ -11,6 +12,7 @@ public class SearchDto {
     /**
      * 检索关键词
      */
+    @NotEmpty(message = "关键字不能为空")
     private String kw;
     /**
      * 过滤项
@@ -23,5 +25,5 @@ public class SearchDto {
     /**
      * 需要查询结果
      */
-    boolean needRecords = true;
+    Boolean needRecords = true;
 }
