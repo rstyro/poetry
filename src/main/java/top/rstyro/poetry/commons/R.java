@@ -42,4 +42,7 @@ public class R<T> implements Serializable {
     public static <E> R<E> fail(String msg) {
         return new R<>(-1, msg, null);
     }
+    public static <E> R<E> fail(int code,String msg) {
+        return new R<>(-1, msg, null);
+    }
 }

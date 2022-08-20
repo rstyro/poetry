@@ -12,7 +12,7 @@ public class SearchDto {
     /**
      * 检索关键词
      */
-    @NotEmpty(message = "关键字不能为空")
+//    @NotEmpty(message = "关键字不能为空")
     private String kw;
     /**
      * 过滤项

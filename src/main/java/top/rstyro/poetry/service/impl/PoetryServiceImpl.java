@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import top.rstyro.poetry.commons.ApiException;
 import top.rstyro.poetry.commons.ApiExceptionCode;
 import top.rstyro.poetry.commons.Const;
@@ -54,9 +55,11 @@ public class PoetryServiceImpl implements IPoetryService {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         String kw = dto.getKw();
-        boolQuery.should(QueryBuilders.matchQuery(LambdaUtil.getFieldName(PoetryIndex::getTitle), kw));
-        boolQuery.should(QueryBuilders.matchQuery(LambdaUtil.getFieldName(PoetryIndex::getContent), kw));
-        boolQuery.should(QueryBuilders.matchQuery(LambdaUtil.getFieldName(PoetryIndex::getAuthor), kw));
+        if(StringUtils.hasLength(kw)){
+            boolQuery.should(QueryBuilders.matchQuery(LambdaUtil.getFieldName(PoetryIndex::getTitle), kw));
+            boolQuery.should(QueryBuilders.matchQuery(LambdaUtil.getFieldName(PoetryIndex::getContent), kw));
+            boolQuery.should(QueryBuilders.matchQuery(LambdaUtil.getFieldName(PoetryIndex::getAuthor), kw));
+        }
         // 过滤项
         if (!ObjectUtils.isEmpty(dto.getFilters())) {
             SearchFilterDto filters = dto.getFilters();
@@ -65,14 +68,20 @@ public class PoetryServiceImpl implements IPoetryService {
                 filterBool.should(QueryBuilders.termsQuery(LambdaUtil.getFieldName(PoetryIndex::getTags), filters.getTags()));
                 boolQuery.must(filterBool);
             }
-            if (!ObjectUtils.isEmpty(filters.getDynasty())) {
+            if (!ObjectUtils.isEmpty(filters.getDynastyList())) {
                 BoolQueryBuilder filterBool = QueryBuilders.boolQuery();
-                filterBool.should(QueryBuilders.termsQuery(LambdaUtil.getFieldName(PoetryIndex::getDynasty), filters.getDynasty()));
+                filterBool.should(QueryBuilders.termsQuery(LambdaUtil.getFieldName(PoetryIndex::getDynasty), filters.getDynastyList()));
                 boolQuery.must(filterBool);
             }
-            if (!ObjectUtils.isEmpty(filters.getType())) {
+            if (!ObjectUtils.isEmpty(filters.getTypeList())) {
                 BoolQueryBuilder filterBool = QueryBuilders.boolQuery();
-                filterBool.should(QueryBuilders.termsQuery(LambdaUtil.getFieldName(PoetryIndex::getType), filters.getType()));
+                filterBool.should(QueryBuilders.termsQuery(LambdaUtil.getFieldName(PoetryIndex::getType), filters.getTypeList()));
+                boolQuery.must(filterBool);
+            }
+
+            if (!ObjectUtils.isEmpty(filters.getAuthorList())) {
+                BoolQueryBuilder filterBool = QueryBuilders.boolQuery();
+                filterBool.should(QueryBuilders.termsQuery(LambdaUtil.getFieldName(PoetryIndex::getAuthor), filters.getAuthorList()));
                 boolQuery.must(filterBool);
             }
         }
@@ -99,6 +108,8 @@ public class PoetryServiceImpl implements IPoetryService {
                 throw new ApiException(ApiExceptionCode.ES_OVER_MAX_RESULT);
             }
             searchSourceBuilder.from(from).size(ContextUtil.getPageSize());
+            searchSourceBuilder.trackTotalHits(true);
+//            searchSourceBuilder.
         }else {
             searchSourceBuilder.size(0);
         }
@@ -134,7 +145,7 @@ public class PoetryServiceImpl implements IPoetryService {
                         sum.addAndGet(bucket.getDocCount());
                         aggregationVoList.add(termAggregationVo);
                     });
-                    resultVo.addAggregation(new AggregationVo<TermAggregationVo>().setKey(a.getKey()).setValues(aggregationVoList).setSumDoc(sum.get()));
+                    resultVo.addAggregation(new AggregationVo<TermAggregationVo>().setKey(a.getKey()).setList(aggregationVoList).setSumDoc(sum.get()));
                 }
 
             });

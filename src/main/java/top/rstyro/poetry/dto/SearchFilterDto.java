@@ -9,6 +9,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class SearchFilterDto {
     private List<String> tags;
-    private List<String> dynasty;
-    private List<String> type;
+    private List<String> dynastyList;
+    private List<String> typeList;
+    private List<String> authorList;
 }

@@ -12,12 +12,12 @@ import java.util.List;
 @NoArgsConstructor
 public class AggregationVo<T extends BaseAggregationVo> implements Serializable {
     String key;
-    List<T> values;
+    List<T> list;
     long sumDoc;
 
-    public AggregationVo(String key, List<T> values, long sumDoc) {
+    public AggregationVo(String key, List<T> list, long sumDoc) {
         this.key = key;
-        this.values = values;
+        this.list = list;
         this.sumDoc=sumDoc;
     }
 
