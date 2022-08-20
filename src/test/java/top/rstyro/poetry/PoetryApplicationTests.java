@@ -90,7 +90,7 @@ class PoetryApplicationTests {
 
 //        chuCiHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\chuci");
 
-        tangSongHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\json");
+        tangSongHandler.handler("E:\\古诗检索系统\\chinese-poetry-master\\chinese-poetry-master\\json");
     }
 
 }
