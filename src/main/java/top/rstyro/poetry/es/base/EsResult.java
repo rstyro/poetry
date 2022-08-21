@@ -3,6 +3,7 @@ package top.rstyro.poetry.es.base;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.suggest.Suggest;
 import top.rstyro.poetry.es.index.EsBaseIndex;
 
 import java.io.Serializable;
@@ -37,5 +38,9 @@ public class EsResult<T extends EsBaseIndex> implements Serializable {
      * 聚合
      */
     Aggregations aggregation;
+    /**
+     * 自动补全
+     */
+    Suggest suggest;
 
 }

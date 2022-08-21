@@ -11,6 +11,11 @@ import top.rstyro.poetry.vo.SearchVo;
 
 import javax.validation.Valid;
 
+/**
+ * 检索相关
+ *
+ * @author rstyro
+ */
 @Validated
 @RestController
 @RequestMapping("/search")
@@ -23,14 +28,20 @@ public class SearchController {
         this.poetryService = poetryService;
     }
 
+    /**
+     * 搜索
+     */
     @PostMapping("/list")
     public R<EsSearchResultVo<SearchVo>> list(@RequestBody @Valid SearchDto dto){
         return R.success(poetryService.getList(dto));
     }
 
-    @GetMapping("/list")
-    public R list(String kw){
-        return R.success();
+    /**
+     * 自动补全
+     */
+    @GetMapping("/getSuggest")
+    public R getSuggest(String kw){
+        return R.success(poetryService.getSuggest(kw));
     }
 
 }

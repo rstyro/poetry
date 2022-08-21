@@ -225,6 +225,7 @@ public class EsBaseService<T extends EsBaseIndex> {
         result.setTook(response.getTook().getMillis());
         result.setRecords(records);
         result.setAggregation(response.getAggregations());
+        result.setSuggest(response.getSuggest());
     }
 
 

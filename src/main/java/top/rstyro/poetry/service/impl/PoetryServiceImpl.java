@@ -2,6 +2,7 @@ package top.rstyro.poetry.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -9,6 +10,11 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedTerms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.search.suggest.SuggestBuilder;
+import org.elasticsearch.search.suggest.SuggestBuilders;
+import org.elasticsearch.search.suggest.SuggestionBuilder;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,6 +26,7 @@ import top.rstyro.poetry.commons.Const;
 import top.rstyro.poetry.dto.SearchAggsDto;
 import top.rstyro.poetry.dto.SearchDto;
 import top.rstyro.poetry.dto.SearchFilterDto;
+import top.rstyro.poetry.enums.SuggestTypeEnum;
 import top.rstyro.poetry.es.base.EsResult;
 import top.rstyro.poetry.es.index.PoetryIndex;
 import top.rstyro.poetry.es.service.impl.PoetryEsService;
@@ -30,6 +37,7 @@ import top.rstyro.poetry.service.IPoetryService;
 import top.rstyro.poetry.util.ContextUtil;
 import top.rstyro.poetry.util.LambdaUtil;
 import top.rstyro.poetry.vo.SearchVo;
+import top.rstyro.poetry.vo.SuggestVo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,10 +63,12 @@ public class PoetryServiceImpl implements IPoetryService {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         String kw = dto.getKw();
-        if(StringUtils.hasLength(kw)){
-            boolQuery.should(QueryBuilders.matchQuery(LambdaUtil.getFieldName(PoetryIndex::getTitle), kw));
-            boolQuery.should(QueryBuilders.matchQuery(LambdaUtil.getFieldName(PoetryIndex::getContent), kw));
-            boolQuery.should(QueryBuilders.matchQuery(LambdaUtil.getFieldName(PoetryIndex::getAuthor), kw));
+        if (StringUtils.hasLength(kw)) {
+            BoolQueryBuilder keywordBool = QueryBuilders.boolQuery();
+            keywordBool.should(QueryBuilders.matchQuery(LambdaUtil.getFieldName(PoetryIndex::getTitle), kw));
+            keywordBool.should(QueryBuilders.matchQuery(LambdaUtil.getFieldName(PoetryIndex::getContent), kw));
+            keywordBool.should(QueryBuilders.matchQuery(LambdaUtil.getFieldName(PoetryIndex::getAuthor), kw));
+            boolQuery.must(keywordBool);
         }
         // 过滤项
         if (!ObjectUtils.isEmpty(dto.getFilters())) {
@@ -81,7 +91,7 @@ public class PoetryServiceImpl implements IPoetryService {
 
             if (!ObjectUtils.isEmpty(filters.getAuthorList())) {
                 BoolQueryBuilder filterBool = QueryBuilders.boolQuery();
-                filterBool.should(QueryBuilders.termsQuery(LambdaUtil.getFieldName(PoetryIndex::getAuthor), filters.getAuthorList()));
+                filterBool.should(QueryBuilders.termsQuery(LambdaUtil.getFieldName(PoetryIndex::getAuthor) + ".keyword", filters.getAuthorList()));
                 boolQuery.must(filterBool);
             }
         }
@@ -104,17 +114,17 @@ public class PoetryServiceImpl implements IPoetryService {
         // 是否需要结果集
         if (dto.getNeedRecords()) {
             int from = (ContextUtil.getPageNo() - 1) * ContextUtil.getPageSize();
-            if(from> Const.MAX_RESULT || (from+ContextUtil.getPageSize())>Const.MAX_RESULT){
+            if (from > Const.MAX_RESULT || (from + ContextUtil.getPageSize()) > Const.MAX_RESULT) {
                 throw new ApiException(ApiExceptionCode.ES_OVER_MAX_RESULT);
             }
             searchSourceBuilder.from(from).size(ContextUtil.getPageSize());
             searchSourceBuilder.trackTotalHits(true);
 //            searchSourceBuilder.
-        }else {
+        } else {
             searchSourceBuilder.size(0);
         }
         if ("dev".equals(env)) {
-            log.info("ES-SQL={}",searchSourceBuilder.toString());
+            log.info("ES-SQL={}", searchSourceBuilder.toString());
         }
         EsResult<PoetryIndex> response = poetryEsService.search(searchSourceBuilder);
         EsSearchResultVo<SearchVo> resultVo = new EsSearchResultVo<>();
@@ -132,10 +142,10 @@ public class PoetryServiceImpl implements IPoetryService {
         resultVo.setRecords(list);
         // 聚类解析
         Aggregations aggregation = response.getAggregation();
-        if(!ObjectUtils.isEmpty(aggregation)){
-            dto.getAggsList().stream().forEach(a->{
+        if (!ObjectUtils.isEmpty(aggregation)) {
+            dto.getAggsList().stream().forEach(a -> {
                 ParsedTerms parsedTerms = aggregation.get(a.getKey());
-                if(!ObjectUtils.isEmpty(parsedTerms)){
+                if (!ObjectUtils.isEmpty(parsedTerms)) {
                     List<TermAggregationVo> aggregationVoList = new ArrayList<>();
                     AtomicLong sum = new AtomicLong(0);
                     parsedTerms.getBuckets().forEach(bucket -> {
@@ -151,5 +161,54 @@ public class PoetryServiceImpl implements IPoetryService {
             });
         }
         return resultVo;
+    }
+
+    @Override
+    public List<SuggestVo> getSuggest(String kw) {
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        SuggestBuilder suggestBuilder = new SuggestBuilder();
+        String auSuggestFileName = LambdaUtil.getFieldName(PoetryIndex::getAuthor) + ".suggest";
+        String titleFileName = LambdaUtil.getFieldName(PoetryIndex::getTitle) + ".suggest";
+        String contentFileName = LambdaUtil.getFieldName(PoetryIndex::getContent) + ".suggest";
+        suggestBuilder.addSuggestion(auSuggestFileName, getSuggestBuilder(auSuggestFileName, kw));
+        suggestBuilder.addSuggestion(titleFileName, getSuggestBuilder(titleFileName, kw));
+        suggestBuilder.addSuggestion(contentFileName, getSuggestBuilder(contentFileName, kw));
+        searchSourceBuilder.suggest(suggestBuilder);
+        searchSourceBuilder.size(0);
+        if ("dev".equals(env)) {
+            log.info("Suggest-SQL={}", searchSourceBuilder.toString());
+        }
+        EsResult<PoetryIndex> search = poetryEsService.search(searchSourceBuilder);
+        List<SuggestVo> suggestVoList = new ArrayList<>();
+        Suggest suggest = search.getSuggest();
+        addSuggest(suggest,auSuggestFileName,suggestVoList,SuggestTypeEnum.au);
+        addSuggest(suggest,titleFileName,suggestVoList,SuggestTypeEnum.ti);
+        addSuggest(suggest,contentFileName,suggestVoList,SuggestTypeEnum.content);
+        return suggestVoList;
+    }
+
+    public SuggestionBuilder<CompletionSuggestionBuilder> getSuggestBuilder(String fileName, String text) {
+        return SuggestBuilders
+                .completionSuggestion(fileName)
+                .text(text)
+                .skipDuplicates(true).size(10);
+    }
+
+    public void addSuggest(Suggest suggest, String name, List<SuggestVo> suggestVoList, SuggestTypeEnum typeEnum) {
+        Suggest.Suggestion<? extends Suggest.Suggestion.Entry<? extends Suggest.Suggestion.Entry.Option>> suggestion = suggest.getSuggestion(name);
+        if (!ObjectUtils.isEmpty(suggestion)) {
+            suggestion.getEntries().forEach(i -> {
+                if (i.getOptions().size() > 0) {
+                    i.getOptions().forEach(o -> {
+                        Text text = o.getText();
+                        if(suggestVoList.size()<20){
+                            suggestVoList.add(new SuggestVo()
+                                    .setType(typeEnum.name())
+                                    .setText(text.string()));
+                        }
+                    });
+                }
+            });
+        }
     }
 }
