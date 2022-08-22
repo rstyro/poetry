@@ -1,6 +1,7 @@
 package top.rstyro.poetry.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -36,6 +37,7 @@ import top.rstyro.poetry.es.vo.TermAggregationVo;
 import top.rstyro.poetry.service.IPoetryService;
 import top.rstyro.poetry.util.ContextUtil;
 import top.rstyro.poetry.util.LambdaUtil;
+import top.rstyro.poetry.vo.SearchDetailVo;
 import top.rstyro.poetry.vo.SearchVo;
 import top.rstyro.poetry.vo.SuggestVo;
 
@@ -161,6 +163,15 @@ public class PoetryServiceImpl implements IPoetryService {
             });
         }
         return resultVo;
+    }
+
+    @SneakyThrows
+    @Override
+    public SearchDetailVo getDetail(String id) {
+        SearchDetailVo vo =new SearchDetailVo();
+        PoetryIndex docById = poetryEsService.getDocById(id);
+        BeanUtil.copyProperties(docById,vo);
+        return vo;
     }
 
     @Override

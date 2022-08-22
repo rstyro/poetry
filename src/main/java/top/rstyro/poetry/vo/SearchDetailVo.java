@@ -7,7 +7,15 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-public class SearchVo extends BaseEsVo {
+public class SearchDetailVo extends BaseEsVo {
+    /**
+     * 篇名
+     */
+    private String section;
+    /**
+     * 章节
+     */
+    private String chapter;
     /**
      * 作者
      */
@@ -26,4 +34,18 @@ public class SearchVo extends BaseEsVo {
      */
     private Set<String> tags;
 
+    /**
+     * 朝代： 唐 宋 ....
+     */
+    private Set<String> dynasty;
+
+    /**
+     * 七言绝句、五言律诗...
+     */
+    private Set<String> type;
+
+    /**
+     * 译文
+     */
+    private List<String> translations;
 }

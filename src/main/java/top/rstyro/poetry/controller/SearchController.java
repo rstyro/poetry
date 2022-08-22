@@ -44,4 +44,12 @@ public class SearchController {
         return R.success(poetryService.getSuggest(kw));
     }
 
+    /**
+     * 详情
+     */
+    @GetMapping("/detail/{id}")
+    public R detail(@PathVariable("id") String id){
+        return R.success(poetryService.getDetail(id));
+    }
+
 }
