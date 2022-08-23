@@ -52,4 +52,12 @@ public class SearchController {
         return R.success(poetryService.getDetail(id));
     }
 
+    /**
+     * 飞花令
+     */
+    @GetMapping("/flyFlower")
+    public R getFlyFlower(String text){
+        return R.success(poetryService.getFlyFlower(text));
+    }
+
 }

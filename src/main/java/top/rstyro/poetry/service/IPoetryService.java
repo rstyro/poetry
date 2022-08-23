@@ -2,6 +2,7 @@ package top.rstyro.poetry.service;
 
 import top.rstyro.poetry.dto.SearchDto;
 import top.rstyro.poetry.es.vo.EsSearchResultVo;
+import top.rstyro.poetry.vo.FlyFlowerVo;
 import top.rstyro.poetry.vo.SearchDetailVo;
 import top.rstyro.poetry.vo.SearchVo;
 import top.rstyro.poetry.vo.SuggestVo;
@@ -13,4 +14,6 @@ public interface IPoetryService {
     public List<SuggestVo> getSuggest(String kw);
 
     public SearchDetailVo getDetail(String id);
+
+    public List<FlyFlowerVo> getFlyFlower(String text);
 }

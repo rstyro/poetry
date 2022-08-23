@@ -37,12 +37,15 @@ import top.rstyro.poetry.es.vo.TermAggregationVo;
 import top.rstyro.poetry.service.IPoetryService;
 import top.rstyro.poetry.util.ContextUtil;
 import top.rstyro.poetry.util.LambdaUtil;
+import top.rstyro.poetry.vo.FlyFlowerVo;
 import top.rstyro.poetry.vo.SearchDetailVo;
 import top.rstyro.poetry.vo.SearchVo;
 import top.rstyro.poetry.vo.SuggestVo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
@@ -115,13 +118,8 @@ public class PoetryServiceImpl implements IPoetryService {
         }
         // 是否需要结果集
         if (dto.getNeedRecords()) {
-            int from = (ContextUtil.getPageNo() - 1) * ContextUtil.getPageSize();
-            if (from > Const.MAX_RESULT || (from + ContextUtil.getPageSize()) > Const.MAX_RESULT) {
-                throw new ApiException(ApiExceptionCode.ES_OVER_MAX_RESULT);
-            }
-            searchSourceBuilder.from(from).size(ContextUtil.getPageSize());
-            searchSourceBuilder.trackTotalHits(true);
-//            searchSourceBuilder.
+            setPageParams(searchSourceBuilder);
+
         } else {
             searchSourceBuilder.size(0);
         }
@@ -165,13 +163,56 @@ public class PoetryServiceImpl implements IPoetryService {
         return resultVo;
     }
 
+    // 设置分页
+    public void setPageParams(SearchSourceBuilder searchSourceBuilder) {
+        int from = (ContextUtil.getPageNo() - 1) * ContextUtil.getPageSize();
+        if (from > Const.MAX_RESULT || (from + ContextUtil.getPageSize()) > Const.MAX_RESULT) {
+            throw new ApiException(ApiExceptionCode.ES_OVER_MAX_RESULT);
+        }
+        searchSourceBuilder.from(from).size(ContextUtil.getPageSize());
+        // 显示总条数
+        searchSourceBuilder.trackTotalHits(true);
+    }
+
     @SneakyThrows
     @Override
     public SearchDetailVo getDetail(String id) {
-        SearchDetailVo vo =new SearchDetailVo();
+        SearchDetailVo vo = new SearchDetailVo();
         PoetryIndex docById = poetryEsService.getDocById(id);
-        BeanUtil.copyProperties(docById,vo);
+        BeanUtil.copyProperties(docById, vo);
         return vo;
+    }
+
+    @Override
+    public List<FlyFlowerVo> getFlyFlower(String text) {
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.matchPhraseQuery(LambdaUtil.getFieldName(PoetryIndex::getContent), text));
+        // 高亮
+        HighlightBuilder highlightBuilder = new HighlightBuilder();
+        String fieldName = LambdaUtil.getFieldName(PoetryIndex::getContent);
+        highlightBuilder.field(fieldName);
+        highlightBuilder.fragmentSize(500);
+        searchSourceBuilder.highlighter(highlightBuilder);
+        searchSourceBuilder.fetchSource(new String[]{"title", "author"}, null);
+        // 分页
+        setPageParams(searchSourceBuilder);
+        EsResult<PoetryIndex> response = poetryEsService.search(searchSourceBuilder);
+        List<FlyFlowerVo> resultList = new ArrayList<>();
+        List<PoetryIndex> records = response.getRecords();
+        if (!ObjectUtils.isEmpty(records)) {
+            records.stream().forEach(i -> {
+                FlyFlowerVo flyFlowerVo = new FlyFlowerVo();
+                flyFlowerVo.setId(i.get_id()).setAuthor(i.getAuthor()).setTitle(i.getTitle());
+                List<String> list = i.getHighlight().get(fieldName);
+                if(!ObjectUtils.isEmpty(list)){
+                    flyFlowerVo.setContent(list.get(0));
+                    resultList.add(flyFlowerVo);
+                }else {
+                    log.info("有毒，检索到但是没高亮，id={},text={}",i.get_id(),text);
+                }
+            });
+        }
+        return resultList;
     }
 
     @Override
@@ -192,9 +233,9 @@ public class PoetryServiceImpl implements IPoetryService {
         EsResult<PoetryIndex> search = poetryEsService.search(searchSourceBuilder);
         List<SuggestVo> suggestVoList = new ArrayList<>();
         Suggest suggest = search.getSuggest();
-        addSuggest(suggest,auSuggestFileName,suggestVoList,SuggestTypeEnum.au);
-        addSuggest(suggest,titleFileName,suggestVoList,SuggestTypeEnum.ti);
-        addSuggest(suggest,contentFileName,suggestVoList,SuggestTypeEnum.content);
+        addSuggest(suggest, auSuggestFileName, suggestVoList, SuggestTypeEnum.au);
+        addSuggest(suggest, titleFileName, suggestVoList, SuggestTypeEnum.ti);
+        addSuggest(suggest, contentFileName, suggestVoList, SuggestTypeEnum.content);
         return suggestVoList;
     }
 
@@ -212,7 +253,7 @@ public class PoetryServiceImpl implements IPoetryService {
                 if (i.getOptions().size() > 0) {
                     i.getOptions().forEach(o -> {
                         Text text = o.getText();
-                        if(suggestVoList.size()<20){
+                        if (suggestVoList.size() < 20) {
                             suggestVoList.add(new SuggestVo()
                                     .setType(typeEnum.name())
                                     .setText(text.string()));
