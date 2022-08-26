@@ -11,9 +11,9 @@ import java.util.stream.Stream;
 
 public class Tools {
     public static void main(String[] args) throws UnsupportedEncodingException {
-        String s = "王之好樂甚，則齊其庶幾乎！今之樂猶古之樂也。";
+        String s = "豳风";
         System.out.println("s="+s);
-        String convert = ZHConverter.convert(s, 0);
+        String convert = ZHConverter.convert(s, 1);
         System.out.println(convert);
     }
 

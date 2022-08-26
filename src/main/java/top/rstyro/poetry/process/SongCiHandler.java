@@ -2,12 +2,12 @@ package top.rstyro.poetry.process;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.io.file.FileReader;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
+import top.rstyro.poetry.entity.PoetrySongCiVo;
 import top.rstyro.poetry.entity.PoetryTangSongVo;
 import top.rstyro.poetry.es.index.PoetryIndex;
 import top.rstyro.poetry.es.service.impl.PoetryEsService;
@@ -19,7 +19,7 @@ import java.util.concurrent.CountDownLatch;
 
 @Slf4j
 @Component
-public class TangSongHandler implements BaseHandler{
+public class SongCiHandler implements BaseHandler{
 
     private PoetryEsService poetryEsService;
 
@@ -31,18 +31,14 @@ public class TangSongHandler implements BaseHandler{
     public void handler(String filePath){
         File file = new File(filePath);
         File[] files = file.listFiles();
-        Arrays.stream(files).filter(f->f.getName().contains("poet")
-                || f.getName().contains("唐诗") || StrUtil.isNumeric(f.getName().replaceAll(".json",""))).forEach(f->{
+        Arrays.stream(files).filter(f->f.getName().contains("ci.song")
+                || f.getName().contains("宋词")).forEach(f->{
             FileReader fileReader = new FileReader(f);
             String json = fileReader.readString();
-            String dynasty = "唐朝";
-            if(f.getName().contains("song")){
-                dynasty = "宋朝";
-            }
-            List<PoetryTangSongVo> list = JSON.parseArray(json, PoetryTangSongVo.class);
-            List<List<PoetryTangSongVo>> splitList = ListUtil.split(list, 1000);
+            List<PoetrySongCiVo> list = JSON.parseArray(json, PoetrySongCiVo.class);
+            List<List<PoetrySongCiVo>> splitList = ListUtil.split(list, 100);
             Set<String> dynastyList = new HashSet<>();
-            dynastyList.add(dynasty);
+            dynastyList.add("宋朝");
             CountDownLatch countDownLatch = new CountDownLatch(splitList.size());
             splitList.stream().forEach(split->{
                 if(executorService.getActiveCount()<core){
@@ -57,28 +53,20 @@ public class TangSongHandler implements BaseHandler{
         });
     }
 
-    public void batchSavePoetry(List<PoetryTangSongVo> list,Set<String> dynastyList, CountDownLatch countDownLatch) {
+    public void batchSavePoetry(List<PoetrySongCiVo> list,Set<String> dynastyList, CountDownLatch countDownLatch) {
         try {
             List<PoetryIndex> dataList = new ArrayList<>();
+            HashSet<String> tags = new HashSet<>(Arrays.asList("宋词"));
+            Set<String> type = new HashSet<>();
+            type.add("宋词");
             list.forEach(d->{
                 List<String> contentList = d.getParagraphs();
                 if(!ObjectUtils.isEmpty(contentList)){
-                    Set<String> type = new HashSet<>();
-                    String line = contentList.get(0);
-                    int length = line.split("，")[0].trim().length();
-                    if(length == 5){
-                        type.add("五言诗");
-                    }else if(length == 7){
-                        type.add("七言诗");
-                    }else {
-                        type.add("未分类");
-                    }
                     PoetryIndex index = new PoetryIndex();
                     index.setAuthor(Tools.cnToSimple(d.getAuthor()));
                     index.setContent(Tools.cnToSimple(d.getParagraphs()));
-                    index.setTitle(Tools.cnToSimple(d.getTitle()));
-                    index.setSection(Tools.cnToSimple(d.getVolume()));
-                    index.setTags(new HashSet<>(Tools.cnToSimple(d.getTags())));
+                    index.setTitle(Tools.cnToSimple(d.getRhythmic()));
+                    index.setTags(tags);
                     index.setDynasty(dynastyList);
                     index.setType(type);
                     index.set_id(getMd5Id(index));

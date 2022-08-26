@@ -49,7 +49,7 @@ public class PoetryIndex extends EsBaseIndex{
      */
     private Set<String> dynasty;
     /**
-     * 七言绝句、五言律诗...
+     * 七言绝句、五言律诗、...
      */
     private Set<String> type;
 

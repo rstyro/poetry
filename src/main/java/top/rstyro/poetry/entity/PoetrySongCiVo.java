@@ -5,15 +5,21 @@ import lombok.experimental.Accessors;
 
 import java.util.List;
 
-
+/**
+ * 宋词 的实体类
+ */
 @Data
 @Accessors(chain = true)
-public class PoetryLunYuVo {
+public class PoetrySongCiVo {
     /**
-     * 卷
+     * 标题
      */
-    private String chapter;
+    private String rhythmic;
 
+    /**
+     * 作者
+     */
+    private String author;
     /**
      * 内容
      */

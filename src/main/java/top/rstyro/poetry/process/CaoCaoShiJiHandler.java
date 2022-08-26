@@ -2,7 +2,6 @@ package top.rstyro.poetry.process;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.io.file.FileReader;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,7 @@ import java.util.concurrent.CountDownLatch;
 
 @Slf4j
 @Component
-public class TangSongHandler implements BaseHandler{
+public class CaoCaoShiJiHandler implements BaseHandler {
 
     private PoetryEsService poetryEsService;
 
@@ -28,57 +27,46 @@ public class TangSongHandler implements BaseHandler{
         this.poetryEsService = poetryEsService;
     }
 
-    public void handler(String filePath){
-        File file = new File(filePath);
-        File[] files = file.listFiles();
-        Arrays.stream(files).filter(f->f.getName().contains("poet")
-                || f.getName().contains("唐诗") || StrUtil.isNumeric(f.getName().replaceAll(".json",""))).forEach(f->{
+    public void handler(String filePath) {
+        try {
+            File f = new File(filePath);
             FileReader fileReader = new FileReader(f);
             String json = fileReader.readString();
-            String dynasty = "唐朝";
-            if(f.getName().contains("song")){
-                dynasty = "宋朝";
-            }
             List<PoetryTangSongVo> list = JSON.parseArray(json, PoetryTangSongVo.class);
             List<List<PoetryTangSongVo>> splitList = ListUtil.split(list, 1000);
             Set<String> dynastyList = new HashSet<>();
-            dynastyList.add(dynasty);
+            dynastyList.add("东汉末年");
+            dynastyList.add("三国时期");
             CountDownLatch countDownLatch = new CountDownLatch(splitList.size());
-            splitList.stream().forEach(split->{
-                if(executorService.getActiveCount()<core){
-                    executorService.execute(()->{
-                        batchSavePoetry(split,dynastyList,countDownLatch);
+            splitList.stream().forEach(split -> {
+                if (executorService.getActiveCount() < core) {
+                    executorService.execute(() -> {
+                        batchSavePoetry(split, dynastyList, countDownLatch);
                     });
-                }else {
-                    batchSavePoetry(split,dynastyList,countDownLatch);
+                } else {
+                    batchSavePoetry(split, dynastyList, countDownLatch);
                 }
             });
-            log.info("处理完文件={}",f.getName());
-        });
+            countDownLatch.await();
+            log.info("处理完文件={}", f.getName());
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(),e);
+        }
     }
 
-    public void batchSavePoetry(List<PoetryTangSongVo> list,Set<String> dynastyList, CountDownLatch countDownLatch) {
+    public void batchSavePoetry(List<PoetryTangSongVo> list, Set<String> dynastyList, CountDownLatch countDownLatch) {
         try {
             List<PoetryIndex> dataList = new ArrayList<>();
-            list.forEach(d->{
+            Set<String> type = new HashSet<>();
+            type.add("曹操诗集");
+            list.forEach(d -> {
                 List<String> contentList = d.getParagraphs();
-                if(!ObjectUtils.isEmpty(contentList)){
-                    Set<String> type = new HashSet<>();
-                    String line = contentList.get(0);
-                    int length = line.split("，")[0].trim().length();
-                    if(length == 5){
-                        type.add("五言诗");
-                    }else if(length == 7){
-                        type.add("七言诗");
-                    }else {
-                        type.add("未分类");
-                    }
+                if (!ObjectUtils.isEmpty(contentList)) {
                     PoetryIndex index = new PoetryIndex();
-                    index.setAuthor(Tools.cnToSimple(d.getAuthor()));
+                    index.setAuthor("曹操");
                     index.setContent(Tools.cnToSimple(d.getParagraphs()));
                     index.setTitle(Tools.cnToSimple(d.getTitle()));
-                    index.setSection(Tools.cnToSimple(d.getVolume()));
-                    index.setTags(new HashSet<>(Tools.cnToSimple(d.getTags())));
+                    index.setTags(new HashSet<>(Arrays.asList("古诗")));
                     index.setDynasty(dynastyList);
                     index.setType(type);
                     index.set_id(getMd5Id(index));
@@ -86,9 +74,9 @@ public class TangSongHandler implements BaseHandler{
                 }
             });
             poetryEsService.batchSaveDoc(dataList);
-        }catch (Exception e){
-            log.error("保存数据时报错，err={}",e.getMessage(),e);
-        }finally {
+        } catch (Exception e) {
+            log.error("保存曹操诗集报错，err={}", e.getMessage(), e);
+        } finally {
             countDownLatch.countDown();
         }
     }
