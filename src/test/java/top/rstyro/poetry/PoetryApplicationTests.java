@@ -28,6 +28,7 @@ class PoetryApplicationTests {
     private SiShuHandler siShuHandler;
     private ShiJingHandler shiJingHandler;
     private HuaJianJiHandler huaJianJiHandler;
+    private NanTangHandler nanTangHandler;
 
     @Autowired
     public void setChuCiHandler(ChuCiHandler chuCiHandler) {
@@ -62,6 +63,11 @@ class PoetryApplicationTests {
     @Autowired
     public void setHuaJianJiHandler(HuaJianJiHandler huaJianJiHandler) {
         this.huaJianJiHandler = huaJianJiHandler;
+    }
+
+    @Autowired
+    public void setNanTangHandler(NanTangHandler nanTangHandler) {
+        this.nanTangHandler = nanTangHandler;
     }
 
     @SneakyThrows
@@ -117,7 +123,9 @@ class PoetryApplicationTests {
 //        tangSongHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\quan_tang_shi\\json");
 //        siShuHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\quan_tang_shi\\json");
 //        shiJingHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\shijing\\shijing.json");
-        huaJianJiHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\wudai\\huajianji");
+//        huaJianJiHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\wudai\\huajianji");
+        nanTangHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\wudai\\nantang");
+
 
 //        tangSongHandler.handler("E:\\古诗检索系统\\chinese-poetry-master\\chinese-poetry-master\\json");
     }
