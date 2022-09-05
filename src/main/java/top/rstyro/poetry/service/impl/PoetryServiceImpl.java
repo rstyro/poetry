@@ -186,7 +186,9 @@ public class PoetryServiceImpl implements IPoetryService {
     @Override
     public List<FlyFlowerVo> getFlyFlower(String text) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.matchPhraseQuery(LambdaUtil.getFieldName(PoetryIndex::getContent), text));
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        boolQuery.must(QueryBuilders.matchPhraseQuery(LambdaUtil.getFieldName(PoetryIndex::getContent), text));
+        searchSourceBuilder.query(boolQuery);
         // 高亮
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         String fieldName = LambdaUtil.getFieldName(PoetryIndex::getContent);
