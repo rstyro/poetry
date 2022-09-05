@@ -16,7 +16,7 @@ import java.util.Set;
 @Accessors(chain = true)
 public class PoetryIndex extends EsBaseIndex{
     /**
-     * 篇名
+     * 篇名 合集
      */
     private String section;
     /**

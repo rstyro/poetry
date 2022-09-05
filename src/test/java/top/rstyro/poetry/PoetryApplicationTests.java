@@ -11,9 +11,7 @@ import top.rstyro.poetry.es.base.EsResult;
 import top.rstyro.poetry.es.index.PoetIndex;
 import top.rstyro.poetry.es.index.PoetryIndex;
 import top.rstyro.poetry.es.service.impl.PoetryEsService;
-import top.rstyro.poetry.process.CaoCaoShiJiHandler;
-import top.rstyro.poetry.process.ChuCiHandler;
-import top.rstyro.poetry.process.TangSongHandler;
+import top.rstyro.poetry.process.*;
 import top.rstyro.poetry.util.LambdaUtil;
 
 import java.util.ArrayList;
@@ -27,6 +25,9 @@ class PoetryApplicationTests {
     private ChuCiHandler chuCiHandler;
     private TangSongHandler tangSongHandler;
     private CaoCaoShiJiHandler caoCaoShiJiHandler;
+    private SiShuHandler siShuHandler;
+    private ShiJingHandler shiJingHandler;
+    private HuaJianJiHandler huaJianJiHandler;
 
     @Autowired
     public void setChuCiHandler(ChuCiHandler chuCiHandler) {
@@ -46,6 +47,21 @@ class PoetryApplicationTests {
     @Autowired
     public void setCaoCaoShiJiHandler(CaoCaoShiJiHandler caoCaoShiJiHandler) {
         this.caoCaoShiJiHandler = caoCaoShiJiHandler;
+    }
+
+    @Autowired
+    public void setSiShuHandler(SiShuHandler siShuHandler) {
+        this.siShuHandler = siShuHandler;
+    }
+
+    @Autowired
+    public void setShiJingHandler(ShiJingHandler shiJingHandler) {
+        this.shiJingHandler = shiJingHandler;
+    }
+
+    @Autowired
+    public void setHuaJianJiHandler(HuaJianJiHandler huaJianJiHandler) {
+        this.huaJianJiHandler = huaJianJiHandler;
     }
 
     @SneakyThrows
@@ -98,7 +114,10 @@ class PoetryApplicationTests {
 //        chuCiHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\chuci");
 //        tangSongHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\json");
 //        caoCaoShiJiHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\caocaoshiji\\caocao.json");
-        tangSongHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\quan_tang_shi\\json");
+//        tangSongHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\quan_tang_shi\\json");
+//        siShuHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\quan_tang_shi\\json");
+//        shiJingHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\shijing\\shijing.json");
+        huaJianJiHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\wudai\\huajianji");
 
 //        tangSongHandler.handler("E:\\古诗检索系统\\chinese-poetry-master\\chinese-poetry-master\\json");
     }
