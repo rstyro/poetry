@@ -3,7 +3,6 @@ package top.rstyro.poetry.dto;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Data

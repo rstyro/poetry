@@ -1,28 +1,40 @@
 package top.rstyro.poetry.util;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
+import top.rstyro.poetry.commons.ContextVo;
+
 /**
  * 上下文工具类
  * @author rstyro
  */
 public class ContextUtil {
-    private final static ThreadLocal<Integer> pageNo = new ThreadLocal<>();
-    private final static ThreadLocal<Integer> pageSize = new ThreadLocal<>();
 
+    private final static TransmittableThreadLocal<ContextVo> voLocal = new TransmittableThreadLocal<>();
 
-    public static void setPageNo(Integer page) {
-        if(page<1)page=1;
-        pageNo.set(page);
+    public static ContextVo getVoLocal(){
+        ContextVo contextVo = voLocal.get();
+        if(contextVo==null){
+            contextVo = new ContextVo();
+            voLocal.set(contextVo);
+        }
+        return contextVo;
+    }
+
+    public static void setVoLocal(ContextVo contextVo) {
+        voLocal.set(contextVo);
     }
 
     public static Integer getPageNo() {
-        return pageNo.get()==null?1:pageNo.get();
-    }
-
-    public static void setPageSize(Integer size) {
-        pageSize.set(size);
+        return getVoLocal().getPageNo();
     }
 
     public static Integer getPageSize() {
-        return pageSize.get()==null?10:pageSize.get();
+        return getVoLocal().getPageSize();
     }
+
+    public static String getTrackerId() {
+        return getVoLocal().getTrackerId();
+    }
+
+
 }

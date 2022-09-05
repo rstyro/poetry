@@ -10,6 +10,10 @@ public interface Const {
      */
     public final static String PAGE_NO="pageNo";
     public final static String PAGE_SIZE="pageSize";
+    /**
+     * 请求追踪ID
+     */
+    public static final String TRACKER_ID = "trackerId";
 
     /**
      * ES 最大结果数

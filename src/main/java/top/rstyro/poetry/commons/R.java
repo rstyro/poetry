@@ -1,6 +1,7 @@
 package top.rstyro.poetry.commons;
 
 import lombok.Data;
+import top.rstyro.poetry.util.ContextUtil;
 
 import java.io.Serializable;
 
@@ -13,11 +14,13 @@ import java.io.Serializable;
 public class R<T> implements Serializable {
     private int code;
     private String msg;
+    private String trackerId;
     private T data;
 
     public R(int code, String msg, T data) {
         this.code = code;
         this.msg = msg;
+        this.trackerId = ContextUtil.getTrackerId();
         this.data = data;
     }
 
