@@ -32,13 +32,13 @@ public class PoetryIndex extends EsBaseIndex{
      */
     private String title;
     /**
+     * 浏览数
+     */
+    private Integer view_count=0;
+    /**
      * 内容
      */
     private List<String> content;
-    /**
-     * 删除标记
-     */
-    private Boolean is_del;
 
     /**
      * 标签: 春天、写景、离别....等等

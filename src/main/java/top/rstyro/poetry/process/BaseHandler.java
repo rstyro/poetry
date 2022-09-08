@@ -18,7 +18,7 @@ public interface BaseHandler {
         // 三者都一样就是重复了，直接覆盖
         poetryIndex.setAuthor(index.getAuthor());
         poetryIndex.setTitle(index.getTitle());
-        poetryIndex.setContent(index.getContent());
+//        poetryIndex.setContent(index.getContent());
         return SecureUtil.md5(JSON.toJSONString(poetryIndex));
     }
 

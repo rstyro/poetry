@@ -42,11 +42,9 @@ import top.rstyro.poetry.vo.SearchDetailVo;
 import top.rstyro.poetry.vo.SearchVo;
 import top.rstyro.poetry.vo.SuggestVo;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -136,6 +134,27 @@ public class PoetryServiceImpl implements IPoetryService {
             records.stream().forEach(i -> {
                 SearchVo vo = new SearchVo();
                 BeanUtil.copyProperties(i, vo);
+                List<String> contentHighs = i.getHighlight().get(LambdaUtil.getFieldName(PoetryIndex::getContent));
+                if(!ObjectUtils.isEmpty(contentHighs)){
+                    contentHighs.stream().forEach(c->{
+                        String sourceC = c.replace("<em>", "").replace("</em>", "");
+                        // 把高亮的句子 替换原文
+                        List<String> newContents = vo.getContent().stream().map(cc -> cc.replace(sourceC, c)).collect(Collectors.toList());
+                        vo.setContent(newContents);
+                    });
+                    // 内容排序，高亮在前，截取前三个即可
+                    List<String> content = vo.getContent();
+                    Collections.sort(content, (c1, c2) -> c1.contains("<em>")?-1:(c2.contains("<em>")?1:0));
+                    vo.setContent(content.subList(0,Math.min(content.size(),3)));
+                }
+                List<String> titleHighs = i.getHighlight().get(LambdaUtil.getFieldName(PoetryIndex::getTitle));
+                if(!ObjectUtils.isEmpty(titleHighs)){
+                    vo.setTitle(titleHighs.get(0));
+                }
+                List<String> auHighs = i.getHighlight().get(LambdaUtil.getFieldName(PoetryIndex::getAuthor));
+                if(!ObjectUtils.isEmpty(auHighs)){
+                    vo.setAuthor(auHighs.get(0));
+                }
                 list.add(vo);
             });
         }

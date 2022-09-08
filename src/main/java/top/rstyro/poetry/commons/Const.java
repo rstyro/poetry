@@ -8,7 +8,7 @@ public interface Const {
     /**
      * 分页参数
      */
-    public final static String PAGE_NO="pageNo";
+    public final static String PAGE_NO="pageNum";
     public final static String PAGE_SIZE="pageSize";
     /**
      * 请求追踪ID

@@ -64,14 +64,17 @@ public class TangSongHandler implements BaseHandler{
                 List<String> contentList = d.getParagraphs();
                 if(!ObjectUtils.isEmpty(contentList)){
                     Set<String> type = new HashSet<>();
-                    String line = contentList.get(0);
-                    int length = line.split("，")[0].trim().length();
-                    if(length == 5){
-                        type.add("五言诗");
-                    }else if(length == 7){
-                        type.add("七言诗");
-                    }else {
-                        type.add("未分类");
+                    // todo 有问题
+                    if(isNeat(contentList)){
+                        String line = contentList.get(0);
+                        int length = line.split("，")[0].trim().length();
+                        if(length == 5){
+                            type.add("五言诗");
+                        }else if(length == 7){
+                            type.add("七言诗");
+                        }else {
+                            type.add("未分类");
+                        }
                     }
                     PoetryIndex index = new PoetryIndex();
                     index.setAuthor(Tools.cnToSimple(d.getAuthor()));
@@ -91,6 +94,22 @@ public class TangSongHandler implements BaseHandler{
         }finally {
             countDownLatch.countDown();
         }
+    }
+
+    /**
+     * 判断是否工整
+     * @return
+     */
+    public boolean isNeat(List<String> content){
+        int linLength=-1;
+        for(String line:content){
+            if(linLength!=-1 && linLength!=line.length()){
+               return false;
+            }else {
+                linLength=line.length();
+            }
+        }
+        return false;
     }
 
 }
