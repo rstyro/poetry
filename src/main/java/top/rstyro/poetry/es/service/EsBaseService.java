@@ -3,6 +3,7 @@ package top.rstyro.poetry.es.service;
 import cn.hutool.core.convert.Convert;
 import com.alibaba.fastjson.JSON;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
+@Slf4j
 public class EsBaseService<T extends EsBaseIndex> {
     private Class<T> indexClass;
     T t;
@@ -110,6 +112,9 @@ public class EsBaseService<T extends EsBaseIndex> {
             request.add(saveRequest);
         }
         BulkResponse bulk = restHighLevelClient.bulk(request, RequestOptions.DEFAULT);
+        if(bulk.hasFailures()){
+            log.error("batchSave error msg={}",bulk.buildFailureMessage());
+        }
         return !bulk.hasFailures();
     }
 
@@ -118,7 +123,7 @@ public class EsBaseService<T extends EsBaseIndex> {
         if(!StringUtils.isEmpty(item.get_id())){
             indexRequest.id(item.get_id());
             indexRequest.routing(item.get_id());
-            indexRequest.opType(DocWriteRequest.OpType.CREATE);
+            indexRequest.opType(DocWriteRequest.OpType.INDEX);
         }
         indexRequest.source(JSON.toJSONString(item.set_id(null)), XContentType.JSON);
         return indexRequest;

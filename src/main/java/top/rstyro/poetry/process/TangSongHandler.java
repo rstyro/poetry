@@ -60,22 +60,11 @@ public class TangSongHandler implements BaseHandler{
     public void batchSavePoetry(List<PoetryTangSongVo> list,Set<String> dynastyList, CountDownLatch countDownLatch) {
         try {
             List<PoetryIndex> dataList = new ArrayList<>();
+            Set<String> type = new HashSet<>();
+            type.add("诗词");
             list.forEach(d->{
                 List<String> contentList = d.getParagraphs();
                 if(!ObjectUtils.isEmpty(contentList)){
-                    Set<String> type = new HashSet<>();
-                    // todo 有问题
-                    if(isNeat(contentList)){
-                        String line = contentList.get(0);
-                        int length = line.split("，")[0].trim().length();
-                        if(length == 5){
-                            type.add("五言诗");
-                        }else if(length == 7){
-                            type.add("七言诗");
-                        }else {
-                            type.add("未分类");
-                        }
-                    }
                     PoetryIndex index = new PoetryIndex();
                     index.setAuthor(Tools.cnToSimple(d.getAuthor()));
                     index.setContent(Tools.cnToSimple(d.getParagraphs()));
