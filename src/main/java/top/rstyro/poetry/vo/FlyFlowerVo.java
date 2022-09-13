@@ -2,10 +2,11 @@ package top.rstyro.poetry.vo;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import top.rstyro.poetry.es.vo.BaseEsVo;
 
 @Data
 @Accessors(chain = true)
-public class FlyFlowerVo{
+public class FlyFlowerVo extends BaseEsVo {
 
     private String id;
     /**

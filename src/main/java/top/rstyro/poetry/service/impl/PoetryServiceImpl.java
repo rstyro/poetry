@@ -78,7 +78,10 @@ public class PoetryServiceImpl implements IPoetryService {
             SearchFilterDto filters = dto.getFilters();
             if (!ObjectUtils.isEmpty(filters.getTags())) {
                 BoolQueryBuilder filterBool = QueryBuilders.boolQuery();
-                filterBool.should(QueryBuilders.termsQuery(LambdaUtil.getFieldName(PoetryIndex::getTags), filters.getTags()));
+//                filterBool.must(QueryBuilders.termsQuery(LambdaUtil.getFieldName(PoetryIndex::getTags), filters.getTags()));
+                filters.getTags().stream().forEach(i->{
+                    filterBool.must(QueryBuilders.termQuery(LambdaUtil.getFieldName(PoetryIndex::getTags), i));
+                });
                 boolQuery.must(filterBool);
             }
             if (!ObjectUtils.isEmpty(filters.getDynastyList())) {
@@ -203,7 +206,7 @@ public class PoetryServiceImpl implements IPoetryService {
     }
 
     @Override
-    public List<FlyFlowerVo> getFlyFlower(String text) {
+    public EsSearchResultVo<FlyFlowerVo> getFlyFlower(String text) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         boolQuery.must(QueryBuilders.matchPhraseQuery(LambdaUtil.getFieldName(PoetryIndex::getContent), text));
@@ -220,10 +223,12 @@ public class PoetryServiceImpl implements IPoetryService {
         EsResult<PoetryIndex> response = poetryEsService.search(searchSourceBuilder);
         List<FlyFlowerVo> resultList = new ArrayList<>();
         List<PoetryIndex> records = response.getRecords();
+        EsSearchResultVo<FlyFlowerVo> resultVo = new EsSearchResultVo<>();
+        resultVo.setTook(response.getTook()).setTotal(response.getTotal());
         if (!ObjectUtils.isEmpty(records)) {
             records.stream().forEach(i -> {
                 FlyFlowerVo flyFlowerVo = new FlyFlowerVo();
-                flyFlowerVo.setId(i.get_id()).setAuthor(i.getAuthor()).setTitle(i.getTitle());
+                flyFlowerVo.setId(i.get_id()).setAuthor(i.getAuthor()).setTitle(i.getTitle()).set_id(i.get_id());
                 List<String> list = i.getHighlight().get(fieldName);
                 if(!ObjectUtils.isEmpty(list)){
                     flyFlowerVo.setContent(list.get(0));
@@ -233,7 +238,8 @@ public class PoetryServiceImpl implements IPoetryService {
                 }
             });
         }
-        return resultList;
+        resultVo.setRecords(resultList);
+        return resultVo;
     }
 
     @Override

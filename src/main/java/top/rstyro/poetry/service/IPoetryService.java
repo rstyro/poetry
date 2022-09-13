@@ -15,5 +15,5 @@ public interface IPoetryService {
 
     public SearchDetailVo getDetail(String id);
 
-    public List<FlyFlowerVo> getFlyFlower(String text);
+    public EsSearchResultVo<FlyFlowerVo> getFlyFlower(String text);
 }
