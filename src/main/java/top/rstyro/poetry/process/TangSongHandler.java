@@ -78,6 +78,10 @@ public class TangSongHandler implements BaseHandler{
                 }
             });
             poetryEsService.batchSaveDoc(dataList);
+
+
+            // 保存到数据库
+            savePoetryToDb(dataList);
         }catch (Exception e){
             log.error("保存数据时报错，err={}",e.getMessage(),e);
         }finally {
