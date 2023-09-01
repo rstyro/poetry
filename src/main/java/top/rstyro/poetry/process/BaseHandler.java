@@ -36,7 +36,7 @@ public interface BaseHandler {
             poetrys.setTitle(p.getTitle());
             poetrys.setContent(JSON.toJSONString(p.getContent()));
             poetrys.setTags(JSON.toJSONString(p.getTags()));
-            poetrys.setSid(SecureUtil.md5(String.format("rs%s-%styro", poetrys.getAuthor(),poetrys.getTitle())));
+            poetrys.setSid(SecureUtil.md5(String.format("rstyro-%s-%s", poetrys.getAuthor(),poetrys.getTitle())));
             poetrys.setDynasty(JSON.toJSONString(p.getDynasty()));
             return poetrys;
         }).collect(Collectors.toList());

@@ -55,3 +55,8 @@ elasticsearch:
   connectTimeOut: 60000
   socketTimeOut: 10000
   connectionRequestTime: 60000
+
+poetry:
+  common:
+    tts:
+      rootPath: D:\my_home\tts\

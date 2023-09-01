@@ -19,7 +19,7 @@ import java.util.concurrent.CountDownLatch;
 
 @Slf4j
 @Component
-public class SongCiHandler implements BaseHandler{
+public class SongCiHandler implements BaseHandler {
 
     private PoetryEsService poetryEsService;
 
@@ -28,40 +28,46 @@ public class SongCiHandler implements BaseHandler{
         this.poetryEsService = poetryEsService;
     }
 
-    public void handler(String filePath){
+    public void handler(String filePath) {
         File file = new File(filePath);
         File[] files = file.listFiles();
-        Arrays.stream(files).filter(f->f.getName().contains("ci.song")
-                || f.getName().contains("宋词")).forEach(f->{
-            FileReader fileReader = new FileReader(f);
-            String json = fileReader.readString();
-            List<PoetrySongCiVo> list = JSON.parseArray(json, PoetrySongCiVo.class);
-            List<List<PoetrySongCiVo>> splitList = ListUtil.split(list, 100);
-            Set<String> dynastyList = new HashSet<>();
-            dynastyList.add("宋朝");
-            CountDownLatch countDownLatch = new CountDownLatch(splitList.size());
-            splitList.stream().forEach(split->{
-                if(executorService.getActiveCount()<core){
-                    executorService.execute(()->{
-                        batchSavePoetry(split,dynastyList,countDownLatch);
-                    });
-                }else {
-                    batchSavePoetry(split,dynastyList,countDownLatch);
-                }
-            });
-            log.info("处理完文件={}",f.getName());
+        Arrays.stream(files).filter(f -> f.getName().contains("ci.song")
+                || f.getName().contains("宋词")).forEach(f -> {
+            try {
+                FileReader fileReader = new FileReader(f);
+                String json = fileReader.readString();
+                List<PoetrySongCiVo> list = JSON.parseArray(json, PoetrySongCiVo.class);
+                List<List<PoetrySongCiVo>> splitList = ListUtil.split(list, 100);
+                Set<String> dynastyList = new HashSet<>();
+                dynastyList.add("宋朝");
+                CountDownLatch countDownLatch = new CountDownLatch(splitList.size());
+                splitList.stream().forEach(split -> {
+                    if (executorService.getActiveCount() < core) {
+                        executorService.execute(() -> {
+                            batchSavePoetry(split, dynastyList, countDownLatch);
+                        });
+                    } else {
+                        batchSavePoetry(split, dynastyList, countDownLatch);
+                    }
+                });
+
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            log.info("处理完文件={}", f.getName());
         });
     }
 
-    public void batchSavePoetry(List<PoetrySongCiVo> list,Set<String> dynastyList, CountDownLatch countDownLatch) {
+    public void batchSavePoetry(List<PoetrySongCiVo> list, Set<String> dynastyList, CountDownLatch countDownLatch) {
         try {
             List<PoetryIndex> dataList = new ArrayList<>();
             HashSet<String> tags = new HashSet<>(Arrays.asList("宋词"));
             Set<String> type = new HashSet<>();
             type.add("宋词");
-            list.forEach(d->{
+            list.forEach(d -> {
                 List<String> contentList = d.getParagraphs();
-                if(!ObjectUtils.isEmpty(contentList)){
+                if (!ObjectUtils.isEmpty(contentList)) {
                     PoetryIndex index = new PoetryIndex();
                     index.setAuthor(Tools.cnToSimple(d.getAuthor()));
                     index.setContent(Tools.cnToSimple(d.getParagraphs()));
@@ -78,9 +84,9 @@ public class SongCiHandler implements BaseHandler{
 
             // 保存到数据库
             savePoetryToDb(dataList);
-        }catch (Exception e){
-            log.error("保存数据时报错，err={}",e.getMessage(),e);
-        }finally {
+        } catch (Exception e) {
+            log.error("保存数据时报错，err={}", e.getMessage(), e);
+        } finally {
             countDownLatch.countDown();
         }
     }

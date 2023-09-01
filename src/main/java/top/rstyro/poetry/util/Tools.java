@@ -1,28 +1,56 @@
 package top.rstyro.poetry.util;
 
 import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpUtil;
 import com.spreada.utils.chinese.ZHConverter;
+import net.sourceforge.pinyin4j.PinyinHelper;
+import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
+import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
+import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
+import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Tools {
-    public static void main(String[] args) throws UnsupportedEncodingException {
+    public static void main(String[] args) throws UnsupportedEncodingException, BadHanyuPinyinOutputFormatCombination {
 //        String s = "豳风";
 //        System.out.println("s="+s);
 //        String convert = ZHConverter.convert(s, 1);
 //        System.out.println(convert);
-        String id="1";
-        String name="苏轼";
-//        String request = getRequest("https://baike.baidu.com/item/" + name);
-        String request = getRequest("https://baike.baidu.com/item/%E8%8B%8F%E8%BD%BC/53906?fromModule=lemma_search-box");
-        System.out.println("request="+request);
+//        String id="1";
+//        String name="苏轼";
+////        String request = getRequest("https://baike.baidu.com/item/" + name);
+//        String request = getRequest("https://baike.baidu.com/item/%E8%8B%8F%E8%BD%BC/53906?fromModule=lemma_search-box");
+//        System.out.println("request="+request);
 
+
+        System.out.println(getTextPinyin("成都有个犀浦镇，只是一个十分繁荣，富强的大镇"));
+
+    }
+
+    /**
+     * 获取内容拼音
+     * @param text 内容
+     * @return 拼音
+     */
+    public static String getTextPinyin(String text){
+        String result = "";
+        HanyuPinyinOutputFormat hanyuPinyinOutputFormat = new HanyuPinyinOutputFormat();
+        hanyuPinyinOutputFormat.setToneType(HanyuPinyinToneType.WITH_TONE_MARK);
+        hanyuPinyinOutputFormat.setVCharType(HanyuPinyinVCharType.WITH_U_UNICODE);
+        try {
+            // 分隔符
+            String separate=" ";
+            result = PinyinHelper.toHanYuPinyinString(text+separate, hanyuPinyinOutputFormat, separate, Boolean.TRUE);
+        } catch (BadHanyuPinyinOutputFormatCombination e) {
+            throw new RuntimeException(e);
+        }
+        return result;
     }
 
     public static void sleep(long millis) {
@@ -63,6 +91,7 @@ public class Tools {
         }
         return list.stream().map(Tools::cnToSimple).collect(Collectors.toList());
     }
+
 
 
 }

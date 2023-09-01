@@ -117,15 +117,14 @@ class PoetryApplicationTests {
 //        System.out.println("b="+b);
 
 
-//        chuCiHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\chuci");
-//        tangSongHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\json");
-//        caoCaoShiJiHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\caocaoshiji\\caocao.json");
+        chuCiHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\chuci");
+        tangSongHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\json");
+        caoCaoShiJiHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\caocaoshiji\\caocao.json");
         tangSongHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\quan_tang_shi\\json");
-//        siShuHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\sishuwujing\\");
-//        shiJingHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\shijing\\shijing.json");
-//        huaJianJiHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\wudai\\huajianji");
-//        nanTangHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\wudai\\nantang");
-
+        siShuHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\sishuwujing\\");
+        shiJingHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\shijing\\shijing.json");
+        huaJianJiHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\wudai\\huajianji");
+        nanTangHandler.handler("D:\\my_home\\chinese-poetry-master\\chinese-poetry-master\\wudai\\nantang");
 
 //        tangSongHandler.handler("E:\\古诗检索系统\\chinese-poetry-master\\chinese-poetry-master\\json");
     }
