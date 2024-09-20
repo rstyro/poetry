@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import top.rstyro.poetry.commons.ApiException;
 import top.rstyro.poetry.commons.R;
+import top.rstyro.poetry.util.ContextUtil;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -28,7 +29,7 @@ public class GlobalExceptionHandlerAdvice {
         if (StringUtils.hasLength(errorMsg)) {
             return R.fail(errorMsg);
         }
-        log.error(e.getMessage(),e);
+        log.error("trackerId={},err={}", ContextUtil.getTrackerId(),e.getMessage(),e);
         return R.fail(e.getMessage());
     }
 
@@ -45,13 +46,13 @@ public class GlobalExceptionHandlerAdvice {
                 return R.fail(messageTemplate);
             }
         }
-        log.error(e.getMessage(),e);
+        log.error("trackerId={},err={}", ContextUtil.getTrackerId(),e.getMessage(),e);
         return R.fail(e.getMessage());
     }
 
     @ExceptionHandler(ApiException.class)
     public R ApiException(ApiException ex) {
-        log.error(ex.getMessage(),ex);
+        log.error("trackerId={},err={}", ContextUtil.getTrackerId(),ex.getMessage(),ex);
         return R.fail(ex.getStatus(),ex.getMessage());
     }
 
@@ -61,7 +62,7 @@ public class GlobalExceptionHandlerAdvice {
      */
     @ExceptionHandler(value = Exception.class)
     public R defaultException(Exception e) {
-        log.error("系统异常:" + e.getMessage(), e);
+        log.error("trackerId={},err={}", ContextUtil.getTrackerId(),e.getMessage(), e);
         return R.fail(e.getMessage());
     }
 

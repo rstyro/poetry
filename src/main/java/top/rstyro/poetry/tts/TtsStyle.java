@@ -1,5 +1,10 @@
 package top.rstyro.poetry.tts;
 
+/**
+ * token来源：https://github.com/rany2/edge-tts/blob/master/src/edge_tts/constants.py
+ * 支持的声音列表：https://speech.platform.bing.com/consumer/speech/synthesize/readaloud/voices/list?trustedclienttoken=6A5AA1D4EAFF4E9FB37E23D68491D6F4
+ *
+ */
 public enum TtsStyle {
     DEFAULT("Default","默认"),
     ASSISTANT("assistant","助理"),
